@@ -1,0 +1,341 @@
+﻿<!DOCTYPE html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ClosingProject FastAPI Demo</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 55%, #334155 100%);
+        color: #e2e8f0;
+      }
+      .page {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 36px 24px 48px;
+      }
+      .panel {
+        background: rgba(15, 23, 42, 0.94);
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        border-radius: 28px;
+        box-shadow: 0 24px 80px rgba(15, 23, 42, 0.4);
+        padding: 30px;
+      }
+      h1,
+      h2 {
+        margin: 0;
+      }
+      h1 {
+        font-size: 2.5rem;
+      }
+      p {
+        color: #cbd5e1;
+        line-height: 1.7;
+      }
+      .section {
+        margin-top: 24px;
+      }
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 18px;
+      }
+      label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #cbd5e1;
+      }
+      select,
+      input[type="number"] {
+        width: 100%;
+        border-radius: 12px;
+        border: 1px solid rgba(148, 163, 184, 0.25);
+        padding: 14px 16px;
+        margin: 0;
+        font-size: 1rem;
+        background: #0f172a;
+        color: #e2e8f0;
+      }
+      button {
+        cursor: pointer;
+        border: none;
+        border-radius: 14px;
+        padding: 14px 20px;
+        color: #fff;
+        background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+        font-size: 1rem;
+        transition: transform 0.15s ease, opacity 0.15s ease;
+      }
+      button:hover {
+        transform: translateY(-1px);
+        opacity: 0.96;
+      }
+      .result,
+      .preview,
+      .note {
+        background: rgba(30, 41, 59, 0.95);
+        border: 1px solid rgba(148, 163, 184, 0.16);
+        border-radius: 18px;
+        padding: 20px;
+        overflow-x: auto;
+      }
+      .note {
+        color: #e2e8f0;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+        text-align: left;
+        padding: 10px 8px;
+      }
+      th {
+        color: #93c5fd;
+      }
+      td {
+        color: #cbd5e1;
+      }
+      .footer {
+        margin-top: 28px;
+        color: #94a3b8;
+        font-size: 0.95rem;
+      }
+      .actions {
+        margin-top: 14px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <div class="panel">
+        <h1>ClosingProject FastAPI Demo</h1>
+        <p>
+          Bu demo, modelinizin üç farklı önceden hazırlanmış test veri setinden birini seçmenize ve
+          ayrıca kullanıcı girdisiyle gerçek zamanlı tahmin yapmanıza izin verir.
+        </p>
+
+        <div class="section">
+          <label for="dataset">Test veri seti seçin</label>
+          <div class="form-grid">
+            <select id="dataset">
+              <option value="math">Math score test verisi</option>
+              <option value="reading">Reading score test verisi</option>
+              <option value="writing">Writing score test verisi</option>
+            </select>
+            <button id="refresh">Veri Setini Yenile</button>
+          </div>
+        </div>
+
+        <div class="section preview" id="preview">
+          <strong>Test veri seti önizlemesi yükleniyor...</strong>
+        </div>
+
+        <div class="section">
+          <h2>Örnek satır ile tahmin</h2>
+          <div class="form-grid">
+            <label>
+              Satır numarası (0 tabanlı)
+              <input id="row" type="number" min="0" value="0" />
+            </label>
+            <div class="actions">
+              <button id="samplePredict">Satırla Tahmin Et</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <h2>Kullanıcı girdisi ile tahmin</h2>
+          <p class="note">
+            Aşağıdaki alanlara değer girin. Seçilen modele uygun olarak girdiler ölçeklenip kodlanarak
+            tahmin yapılacaktır.
+          </p>
+          <div class="form-grid">
+            <div class="field">
+              <label for="gender">Gender</label>
+              <select id="gender">
+                <option value="female">female</option>
+                <option value="male">male</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="race">Race / Ethnicity</label>
+              <select id="race">
+                <option value="group A">group A</option>
+                <option value="group B">group B</option>
+                <option value="group C">group C</option>
+                <option value="group D">group D</option>
+                <option value="group E">group E</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="parentEducation">Parental Level of Education</label>
+              <select id="parentEducation">
+                <option value="associate's degree">associate's degree</option>
+                <option value="bachelor's degree">bachelor's degree</option>
+                <option value="high school">high school</option>
+                <option value="master's degree">master's degree</option>
+                <option value="some college">some college</option>
+                <option value="some high school">some high school</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="lunch">Lunch</label>
+              <select id="lunch">
+                <option value="standard">standard</option>
+                <option value="free/reduced">free/reduced</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="prepCourse">Test Preparation Course</label>
+              <select id="prepCourse">
+                <option value="none">none</option>
+                <option value="completed">completed</option>
+              </select>
+            </div>
+            <div class="field numeric-field" data-feature="math score">
+              <label for="mathScore">Math Score</label>
+              <input id="mathScore" type="number" value="65" min="0" max="100" />
+            </div>
+            <div class="field numeric-field" data-feature="reading score">
+              <label for="readingScore">Reading Score</label>
+              <input id="readingScore" type="number" value="70" min="0" max="100" />
+            </div>
+            <div class="field numeric-field" data-feature="writing score">
+              <label for="writingScore">Writing Score</label>
+              <input id="writingScore" type="number" value="75" min="0" max="100" />
+            </div>
+          </div>
+          <div class="actions">
+            <button id="manualPredict">Manuel Tahmin Et</button>
+          </div>
+        </div>
+
+        <div class="section result" id="result">
+          <strong>Sonuç alanı</strong>
+          <p class="message">Henüz tahmin yapılmadı.</p>
+        </div>
+
+        <div class="footer">
+          Bu sayfa, seçilen veri setine göre hem örnek satırla hem de kullanıcı girdisiyle tahmin yapılmasına olanak sağlar.
+        </div>
+      </div>
+    </main>
+    <script>
+      const datasetSelect = document.getElementById("dataset");
+      const refreshButton = document.getElementById("refresh");
+      const samplePredictButton = document.getElementById("samplePredict");
+      const manualPredictButton = document.getElementById("manualPredict");
+      const rowInput = document.getElementById("row");
+      const previewContainer = document.getElementById("preview");
+      const resultContainer = document.getElementById("result");
+
+      let currentInputColumns = [];
+
+      function updateFeatureVisibility(columns) {
+        currentInputColumns = columns || [];
+        const numericFields = [
+          "math score",
+          "reading score",
+          "writing score",
+        ];
+
+        numericFields.forEach((feature) => {
+          const fieldElement = document.querySelector(`[data-feature="${feature}"]`);
+          if (!fieldElement) {
+            return;
+          }
+          fieldElement.style.display = columns.includes(feature) ? "block" : "none";
+        });
+      }
+
+      async function loadPreview() {
+        const dataset = datasetSelect.value;
+        const response = await fetch(`/preview?dataset=${encodeURIComponent(dataset)}`);
+        if (!response.ok) {
+          previewContainer.innerHTML = `<strong>Önizleme yüklenirken hata oluştu.</strong>`;
+          return;
+        }
+
+        const data = await response.json();
+        updateFeatureVisibility(data.input_columns || []);
+
+        const header = `<div class="message"><strong>${data.label}</strong> — Toplam satır: ${data.row_count}</div>`;
+        const rows = data.preview;
+        const columns = data.columns;
+        const tableRows = rows
+          .map(
+            (row) =>
+              `<tr>${columns
+                .map((col) => `<td>${String(row[col]).replace(/\n/g, " ")}</td>`)
+                .join("")}</tr>`,
+          )
+          .join("");
+        const tableHeader = `<tr>${columns.map((col) => `<th>${col}</th>`).join("")}</tr>`;
+
+        previewContainer.innerHTML = `${header}<table>${tableHeader}${tableRows}</table>`;
+      }
+
+      async function fetchPredict(payload) {
+        const response = await fetch("/predict", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+          const error = await response.json().catch(() => null);
+          resultContainer.innerHTML = `<strong>Hata:</strong> ${error?.detail || "Beklenmeyen bir hata oluştu."}`;
+          return;
+        }
+
+        const data = await response.json();
+        resultContainer.innerHTML = `
+          <div class="message"><strong>${data.label}</strong> için tahmin yapıldı.</div>
+          <pre>${JSON.stringify(data, null, 2)}</pre>
+        `;
+      }
+
+      async function predictSample() {
+        const dataset = datasetSelect.value;
+        const row = Number(rowInput.value || 0);
+        await fetchPredict({ dataset, row });
+      }
+
+      async function predictManual() {
+        const dataset = datasetSelect.value;
+        const values = {
+          gender: document.getElementById("gender").value,
+          "race/ethnicity": document.getElementById("race").value,
+          "parental level of education": document.getElementById("parentEducation").value,
+          lunch: document.getElementById("lunch").value,
+          "test preparation course": document.getElementById("prepCourse").value,
+          "math score": Number(document.getElementById("mathScore").value),
+          "reading score": Number(document.getElementById("readingScore").value),
+          "writing score": Number(document.getElementById("writingScore").value),
+        };
+
+        const features = {};
+        currentInputColumns.forEach((col) => {
+          features[col] = values[col];
+        });
+
+        await fetchPredict({ dataset, features });
+      }
+
+      refreshButton.addEventListener("click", loadPreview);
+      samplePredictButton.addEventListener("click", predictSample);
+      manualPredictButton.addEventListener("click", predictManual);
+      datasetSelect.addEventListener("change", loadPreview);
+      window.addEventListener("load", loadPreview);
+    </script>
+  </body>
+</html>
